@@ -1,0 +1,84 @@
+﻿Есть таблица с авторами - authors: int id, string surname, DateTime dtimeReward
+dtimeReward - время награждения автора, если автор не награждён, то поле null
+
+Есть таблица с книгами books: int id, string title, DateTime dtimeCreate
+dtimeCreate - время написания книги
+
+Есть таблица, их связывающая - links: int id, int idAuthor, int idBook
+При этом, у одной книги может быть несколько авторов
+
+Найти книги, которые написаны после 2000 года, и хотя бы один из авторов книги награждён 
+
+Решение 1:
+SELECT DISTINCT b.title  FROM books b
+INNER JOIN Links l ON b.id  = l.idBook 
+INNER JOIN authors auth ON auth.id = l.idAuthor 
+WHERE b.dtimeCreate >= '2000-01-01' AND auth.dtimeReward IS NOT NULL
+
+Решение 2:
+SELECT DISTINCT filB.title FROM 
+(SELECT * FROM  authors auth WHERE  auth.dtimeReward IS NOT NULL) filAuth 
+INNER JOIN  Links l on l.idAuthor = filAuth.id
+INNER JOIN (SELECT *  FROM books b WHERE b.dtimeCreate >= '2000-01-01') filB ON filB.id = l.idBook 
+
+
+
+
+Проверим на наборе данных:
+
+links:
+id|idAuthor|idBook|
+--+--------+------+
+ 0|       0|     0|
+ 1|       0|     1|
+ 2|       1|     2|
+ 3|       2|     3|
+ 4|       3|     4|
+ 5|       2|     5|
+ 6|       2|     6|
+ 8|       1|     6|
+ 7|       3|     6|
+
+authors:
+id|surname     |dtimeReward|
+--+------------+-----------+
+ 0|Волчановский|2020-5-1   |
+ 1|Ямбиков     |2019-3-8   |
+ 2|Иванов      |           |
+ 3|Осковец     |1995-9-6   |
+
+books:
+id|title                   |dtimeCreate|
+--+------------------------+-----------+
+ 0|Баллада о офицере       |2021-7-14  |
+ 1|Баллада о солдате       |1998-7-17  |
+ 6|Русские народные сказки2|2022-3-5   |
+ 2|Баллада о матросе       |2019-4-12  |
+ 3|Музыка для всех         |1999-2-14  |
+ 4|Программирование        |2000-6-19  |
+ 5|Русские народные сказки |2021-3-5   |
+
+
+
+
+Решение 1:
+title                   |
+------------------------+
+Баллада о офицере       |
+Баллада о матросе       |
+Программирование        |
+Русские народные сказки2|
+
+
+
+Решение 2:
+title                   |
+------------------------+
+Баллада о офицере       |
+Баллада о матросе       |
+Русские народные сказки2|
+Программирование        |
+
+
+
+
